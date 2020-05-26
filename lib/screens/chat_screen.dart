@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/models/message_model.dart';
 import 'package:flutter_chat_ui/models/user_model.dart';
+import '../models/send_menu_items.dart';
 
 class ChatScreen extends StatefulWidget {
   final User user;
@@ -12,6 +13,17 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<SendMenuItems> menuItems = [
+    SendMenuItems(
+        text: "Photos & Videos", icons: Icons.image, color: Colors.amber),
+    SendMenuItems(
+        text: "Document", icons: Icons.insert_drive_file, color: Colors.blue),
+    SendMenuItems(text: "Audio", icons: Icons.music_note, color: Colors.orange),
+    SendMenuItems(
+        text: "Location", icons: Icons.location_on, color: Colors.green),
+    SendMenuItems(text: "Contact", icons: Icons.person, color: Colors.purple),
+  ];
+
   _buildMessage(Message message, bool isMe) {
     final Container msg = Container(
       margin: isMe
@@ -44,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(
             message.time,
             style: TextStyle(
-              color: Colors.blueGrey,
+              color: Colors.black,
               fontSize: 11.0,
               fontWeight: FontWeight.w600,
             ),
@@ -53,9 +65,8 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(
             message.text,
             style: TextStyle(
-              color: Colors.blueGrey,
+              color: Colors.black,
               fontSize: 16.0,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -67,51 +78,86 @@ class _ChatScreenState extends State<ChatScreen> {
     return Row(
       children: <Widget>[
         msg,
-        IconButton(
-          icon: message.isLiked
-              ? Icon(Icons.favorite)
-              : Icon(Icons.favorite_border),
-          iconSize: 30.0,
-          color: message.isLiked
-              ? Theme.of(context).primaryColor
-              : Colors.blueGrey,
-          onPressed: () {},
-        )
+        // IconButton(
+        //   icon: message.isLiked
+        //       ? Icon(Icons.favorite)
+        //       : Icon(Icons.favorite_border),
+        //   iconSize: 30.0,
+        //   color: message.isLiked
+        //       ? Theme.of(context).primaryColor
+        //       : Colors.blueGrey,
+        //   onPressed: () {},
+        // )
       ],
     );
   }
 
-  _buildMessageComposer() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
-      height: 70.0,
-      color: Colors.white,
-      child: Row(
-        children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.photo),
-            iconSize: 25.0,
-            color: Theme.of(context).primaryColor,
-            onPressed: () {},
-          ),
-          Expanded(
-            child: TextField(
-              textCapitalization: TextCapitalization.sentences,
-              onChanged: (value) {},
-              decoration: InputDecoration.collapsed(
-                hintText: 'Send a message...',
+  showModal() {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return Container(
+            // height: MediaQuery.of(context).size.height / 2,
+            color: Color(0xff737373),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(20),
+                      topLeft: Radius.circular(20)),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Center(
+                      child: Container(
+                        height: 4,
+                        width: 50,
+                        color: Colors.grey.shade200,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ListView.builder(
+                      itemCount: menuItems.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          padding: EdgeInsets.only(top: 10, bottom: 10),
+                          child: ListTile(
+                            leading: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: menuItems[index].color.shade50,
+                              ),
+                              height: 50,
+                              width: 50,
+                              child: Icon(
+                                menuItems[index].icons,
+                                size: 20,
+                                color: menuItems[index].color.shade400,
+                              ),
+                            ),
+                            title: Text(menuItems[index].text),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.send),
-            iconSize: 25.0,
-            color: Theme.of(context).primaryColor,
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 
   @override
@@ -167,7 +213,64 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            _buildMessageComposer(),
+            Container(
+              padding: EdgeInsets.only(left: 16, bottom: 10),
+              // height: 80,
+              width: double.infinity,
+              color: Colors.white,
+              child: Row(
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () {
+                      showModal();
+                    },
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blueGrey,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 21,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                          hintText: "Type message...",
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          border: InputBorder.none),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.send,
+                        color: Colors.black,
+                      ),
+                      // child: Icon(
+                      //   Icons.send,
+                      //   color: Colors.black,
+                      // ),
+                      // backgroundColor: Colors.pink,
+                      // elevation: 0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
